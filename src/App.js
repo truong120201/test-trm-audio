@@ -56,16 +56,15 @@ function App() {
         name,
         await window.FFmpeg.fetchFile(videoFileValue),
       );
-      const videoFileType = type.split('/')[1];
-      console.log("🚀 ~ file: App.js:60 ~ handleTrim ~ videoFileType:", videoFileType)
-      let finalType = videoFileType === "mp4" ? "mp4" : "mp3";
+      const videoFileType = type.split('/');
+      let finalType = videoFileType[0] === "video" ? videoFileType[1] : "mp3";
       await ffmpeg.run(
         '-i',
         name,
         '-ss',
         `00:00`,
         '-to',
-        `00:30`,
+        `00:20`,
         '-acodec',
         'copy',
         '-vcodec',
