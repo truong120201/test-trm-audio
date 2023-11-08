@@ -4,6 +4,7 @@ let ffmpeg;
 function App() {
   const [videoSrc, setVideoSrc] = useState('');
   const [videoFileValue, setVideoFileValue] = useState('');
+  console.log(videoFileValue)
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [videoTrimmedUrl, setVideoTrimmedUrl] = useState('');
   const videoRef = useRef();
@@ -37,7 +38,7 @@ function App() {
 
   useEffect(() => {
     loadScript(
-      'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.2/dist/ffmpeg.min.js',
+      'ffmpeg.min.js',
     ).then(() => {
       if (typeof window !== 'undefined') {
         ffmpeg = window.FFmpeg.createFFmpeg({ log: true });
@@ -56,6 +57,8 @@ function App() {
         await window.FFmpeg.fetchFile(videoFileValue),
       );
       const videoFileType = type.split('/')[1];
+      console.log("🚀 ~ file: App.js:60 ~ handleTrim ~ videoFileType:", videoFileType)
+      let finalType = videoFileType === "mp4" ? "mp4" : "mp3";
       await ffmpeg.run(
         '-i',
         name,
@@ -67,9 +70,9 @@ function App() {
         'copy',
         '-vcodec',
         'copy',
-        `out.${videoFileType}`,
+        `out.${finalType}`,
       );
-      const data = ffmpeg.FS('readFile',  `out.${videoFileType}`);
+      const data = ffmpeg.FS('readFile',  `out.${finalType}`);
       const url = URL.createObjectURL(
         new Blob([data.buffer], { type: videoFileValue.type }),
       );
@@ -85,7 +88,7 @@ function App() {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'trimmed_video.mp4';
+          a.download = 'trimmed_file';
           a.click();
         });
     }
@@ -97,7 +100,7 @@ function App() {
       <br />
       {videoSrc.length ? (
         <React.Fragment>
-          <video src={videoSrc} ref={videoRef}>
+          <video controls ref={videoRef}>
             <source src={videoSrc} type={videoFileValue.type} />
           </video>
           <br />
