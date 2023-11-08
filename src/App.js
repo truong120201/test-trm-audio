@@ -50,14 +50,14 @@ function App() {
 
   const handleTrim = async () => {
     if (isScriptLoaded) {
-      const { name, type } = videoFileValue;
+      const { name } = videoFileValue;
       ffmpeg.FS(
         'writeFile',
         name,
         await window.FFmpeg.fetchFile(videoFileValue),
       );
-      const videoFileType = type.split('/');
-      let finalType = videoFileType[0] === "video" ? videoFileType[1] : "mp3";
+      const nameSplit = name.split('.');
+      const nameType = nameSplit[nameSplit.length - 1];
       await ffmpeg.run(
         '-i',
         name,
@@ -69,27 +69,13 @@ function App() {
         'copy',
         '-vcodec',
         'copy',
-        `out.${finalType}`,
+        `out.${nameType}`,
       );
-      const data = ffmpeg.FS('readFile',  `out.${finalType}`);
+      const data = ffmpeg.FS('readFile',  `out.${nameType}`);
       const url = URL.createObjectURL(
         new Blob([data.buffer], { type: videoFileValue.type }),
       );
       setVideoTrimmedUrl(url);
-    }
-  };
-
-  const downloadTrimmedVideo = () => {
-    if (videoTrimmedUrl) {
-      fetch(videoTrimmedUrl)
-        .then((res) => res.blob())
-        .then((blob) => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'trimmed_file';
-          a.click();
-        });
     }
   };
 
@@ -99,18 +85,17 @@ function App() {
       <br />
       {videoSrc.length ? (
         <React.Fragment>
-          <video controls ref={videoRef}>
-            <source src={videoSrc} type={videoFileValue.type} />
+          <video controls ref={videoRef} disablePictureInPicture>
+            <source src={videoSrc} />
           </video>
           <br />
           <button onClick={handleTrim}>Trim</button>
           <br />
           {videoTrimmedUrl && (
             <>
-            <video controls>
-              <source src={videoTrimmedUrl} type={videoFileValue.type} />
+            <video controls disablePictureInPicture>
+              <source src={videoTrimmedUrl} />
             </video>
-            <button onClick={downloadTrimmedVideo}>Download Trimmed Video</button>
             </>
           )}
         </React.Fragment>
