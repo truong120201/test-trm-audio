@@ -64,7 +64,7 @@ function App() {
         '-ss',
         `00:00`,
         '-to',
-        `00:20`,
+        `00:30`,
         '-acodec',
         'copy',
         '-vcodec',
